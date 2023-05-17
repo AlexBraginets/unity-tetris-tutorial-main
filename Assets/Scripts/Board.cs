@@ -4,17 +4,16 @@ using UnityEngine.Tilemaps;
 
 public class Board : MonoBehaviour
 {
+    [SerializeField] private TetranimosSequencer _sequencer;
     public Tilemap tilemap { get; private set; }
     public Piece activePiece { get; private set; }
-    public SpeedMap _speedMap;
     public LevelManager _levelManager;
-    public TetrominoData[] tetrominoes;
     public Vector2Int boardSize = new Vector2Int(10, 20);
     public Vector3Int spawnPosition = new Vector3Int(-1, 8, 0);
 
     public float GetStepDelay()
     {
-        return Mathf.Pow((0.8f-(_levelManager.level)*0.007f), _levelManager.level);
+        return Mathf.Pow((0.8f - (_levelManager.level) * 0.007f), _levelManager.level);
     }
 
     public RectInt Bounds
@@ -30,11 +29,6 @@ public class Board : MonoBehaviour
     {
         tilemap = GetComponentInChildren<Tilemap>();
         activePiece = GetComponentInChildren<Piece>();
-
-        for (int i = 0; i < tetrominoes.Length; i++)
-        {
-            tetrominoes[i].Initialize();
-        }
     }
 
     private void Start()
@@ -44,8 +38,7 @@ public class Board : MonoBehaviour
 
     public void SpawnPiece()
     {
-        int random = UnityEngine.Random.Range(0, tetrominoes.Length);
-        TetrominoData data = tetrominoes[random];
+        TetrominoData data = _sequencer.MoveNext();
 
         activePiece.Initialize(this, spawnPosition, data);
 
@@ -94,7 +87,7 @@ public class Board : MonoBehaviour
             Vector3Int tilePosition = piece.cells[i] + position;
 
             // An out of bounds tile is invalid
-            if (!bounds.Contains((Vector2Int)tilePosition))
+            if (!bounds.Contains((Vector2Int) tilePosition))
             {
                 return false;
             }
@@ -130,12 +123,13 @@ public class Board : MonoBehaviour
                 row++;
             }
         }
+
         if (linesCleared != 0)
         {
             OnLinesCleared?.Invoke(linesCleared);
         }
     }
-    
+
 
     public bool IsLineFull(int row)
     {
@@ -183,5 +177,4 @@ public class Board : MonoBehaviour
     }
 
     public event Action<int> OnLinesCleared;
-
 }
